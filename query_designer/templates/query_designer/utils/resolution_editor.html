@@ -1,0 +1,33 @@
+<div class="fieldset">
+    <div class="row" style="margin-top: 10px">
+        <div class="col-xs-4 col-prefix" style=" font-size: 11pt; padding-right: 0; padding-left: 0;"> Temporal resolution: </div>
+        <div class="col-xs-8 col-main" style="">
+            <select  style="border: 2px solid grey; border-radius: 1em; width: 50% !important" id="temporal_resolution" >
+                <option value="" selected>-- None --</option>
+                <option value="minute">Minute</option>
+                <option value="hour" >Hour</option>
+                <option value="day">Day</option>
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+            </select>
+        </div>
+{#        <div class="col-xs-1 col-suffix"></div>#}
+    </div>
+
+    <div class="row" style="margin-top: 10px">
+        <div class="col-xs-4 col-prefix" style=" font-size: 11pt; padding-right: 0; padding-left: 0;"> Spatial resolution: </div>
+        <div class="col-xs-8 col-main"  style="">
+            <select  style="border: 2px solid grey; border-radius: 1em; width: 50% !important" id="spatial_resolution" >
+                <option value="" selected>-- None --</option>
+                <option value="1">1 degree</option>
+                <option value="0.1" >0.1 degrees</option>
+{#                <option value="point">Point</option>#}
+                <option value="0.01" >0.01 degrees</option>
+{#                <option value="0.05">0.05 degrees</option>#}
+
+{#                <option value="0.5">0.5 degrees</option>#}
+            </select>
+        </div>
+{#        <div class="col-xs-1 col-suffix"></div>#}
+    </div>
+</div>

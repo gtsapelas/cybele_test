@@ -1,0 +1,31 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load static %}
+{% block head_title %}{% trans "Signup" %}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-6 col-xs-push-3 standing-out">
+                   <div class="bg-color--blue accountheader">
+                <img id="logowhite" class="" src="{% static "img/logoaccount.png" %}" alt="BigData Ocean">
+            </div>
+            <h1 class="o-blue">{% trans "Sign Up" %}</h1>
+
+            <p>{% blocktrans %}Already have an account? Then please <a class="o-blue" href="{{ login_url }}"><b>sign in</b></a>.{% endblocktrans %}</p>
+
+            <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+                {% csrf_token %}
+
+                {% include 'util/form-fields.html' %}
+
+                {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                {% endif %}
+
+                <button class="btn btn-success" type="submit">{% trans "Sign Up" %}</button>
+             <p>By signing up you agree to the CYBELE platform <a class="o-blue" href="/terms" target="_blank" style="text-decoration:underline">terms and conditions.</a></p>
+            </form>
+        </div>
+    </div>
+{% endblock %}

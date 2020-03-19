@@ -1,0 +1,459 @@
+{% extends "base.html" %}
+
+<!-- {% load i18n %} -->
+
+{% load leaflet_tags %}
+
+{% block bodyclass %}overview{% endblock %}
+{% block analysismenu %}active{% endblock %}
+
+{% load static %}
+
+{% block css %}
+
+    {% leaflet_css %}
+    <link href="{% static 'css/leaflet-areaselect.css' %}?platform_version={{ settings.PLATFORM_VERSION }}" rel="stylesheet">
+    <link href="{% static "vendor/Semantic-UI-CSS-master/semantic.css" %}?platform_version={{ settings.PLATFORM_VERSION }}" rel="stylesheet">
+
+    <link href="{% static "query_designer/css/toolbox.css" %}?platform_version={{ settings.PLATFORM_VERSION }}" rel="stylesheet">
+    <link href="{% static "query_designer/css/data-modal.css" %}?platform_version={{ settings.PLATFORM_VERSION }}" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet"/>
+{#    <link href="{% static 'query_designer/js/handsontable/handsontable.full.min.css' %}?platform_version={{ settings.PLATFORM_VERSION }}" rel="stylesheet">#}
+
+    <link href="{% static 'query_designer/css/formulas.css' %}?platform_version={{ settings.PLATFORM_VERSION }}" rel="stylesheet">
+
+    <!-- jPList CSS -->
+    <link rel="stylesheet" href="{% static 'css/jplist.core.min.css' %}?platform_version={{ settings.PLATFORM_VERSION }}" />
+    <link rel="stylesheet" href="{% static 'css/jplist.textbox-filter.min.css' %}?platform_version={{ settings.PLATFORM_VERSION }}" />
+    <link rel="stylesheet" href="{% static 'css/jplist.filter-toggle-bundle.min.css' %}?platform_version={{ settings.PLATFORM_VERSION }}" />
+    <link rel="stylesheet" href="{% static 'css/jplist.jquery-ui-bundle.min.css' %}?platform_version={{ settings.PLATFORM_VERSION }}" />
+
+    <link href="{% static "css/bootstrap-datetimepicker.css" %}?platform_version={{ settings.PLATFORM_VERSION }}" rel="stylesheet">
+    <link href="{% static "query_designer/css/icon_tooltip_css.css" %}?platform_version={{ settings.PLATFORM_VERSION }}" rel="stylesheet">
+
+    <link href="{% static "vendor/bootstrap-tour/src/bootstrap-tour.min.css" %}?platform_version={{ settings.PLATFORM_VERSION }}" rel="stylesheet">
+
+
+    <style>
+        #chart-picker li, #chart-picker li a{
+            min-height: 42px;
+        }
+        #createPreBuildLink{
+            float: right;
+            margin-top: -13px;
+            padding: 6px 12px 6px;
+            border-radius: 3px;
+            color: white;
+            background-color: #2172ac;
+        }
+
+        #createPreBuildLink:hover{
+            cursor: pointer;
+            box-shadow: 1px 1px 10px grey;
+        }
+
+        .modal-dialog{
+            margin: 0 10% !important;
+            width: 80% !important;
+        }
+        .conf-error-message{
+            color: darkred;
+            font-size: small;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- begin PAGE TITLE AREA -->
+    <!-- Use this section for each page's title and breadcrumb layout. In this example a date range picker is included within the breadcrumb. -->
+    <div id="initialising_div" class="" style="text-align: center; position: absolute; width: 100%; height: 100%; top: 0; bottom: 0; left: 0; right: 0; background-color: #3d3d3dc7; color: white; z-index:1;">
+        <div style="background-color: white; color: #394146; margin: 15% 35%;     border-radius: 3px;">
+            <h3 style="display: inline-block;">Initialising Advanced Query Builder</h3>
+            <img  alt="" src="{% static 'wave_energy_pilot/img/service_loading.gif' %}" style="width: 3vh;">
+        </div>
+
+    </div>
+
+    <div class="row" style="display: none;">
+        <form class="form" id="config-viz-form"></form>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="text-center">
+                    <h1 class="" style="margin: 0; font-size: 30pt; color: #3A3A3C;">Advanced Query Builder</h1>
+                    <h5 style="display: inline-block; margin: 0;">Create queries and explore the data available on CYBELE.</h5>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+
+    <div id="global_message_alert" class="alert alert-warning alert-dismissible row"  style="display: none; padding: 5px 15% !important; margin: 0% 0% !important; background: #a64a4a; color: white; text-align: center;">
+{#        <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>#}
+{#        <a class="close" onclick="$('.alert').hide()">&times;</a>#}
+        <p>You are trying to query a very large dataset with global measurements.</p>
+        <p>This operation requires a lot of time and it is recommended to filter your selection on space and time.</p>
+        <p>Please filter your query to a smaller area and try again.</p>
+        <button type="button" class="btn btn-sm btn-primary" onclick="$(this).closest('.alert ').hide()" style="margin: 0;">
+            <span>Ok</span>
+        </button>
+    </div>
+
+    <div id="spatial_filter_message_alert" class="alert alert-warning alert-dismissible row"  style="display: none; padding: 5px 15% !important; margin: 0% 0% !important; background: #a64a4a; color: white; text-align: center;">
+{#        <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>#}
+{#        <a class="close" onclick="$('.alert').hide()">&times;</a>#}
+        <p>You have selected a very large area to query.</p>
+        <p>Please narrow your selection to a smaller area and try again.</p>
+        <button type="button" class="btn btn-sm btn-primary" onclick="$(this).closest('.alert ').hide()" style="margin: 0;">
+            <span>Ok</span>
+        </button>
+    </div>
+
+    <div id="error_message_alert" class="alert alert-danger alert-dismissible row" >
+{#        <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>#}
+        <a class="close" onclick="$('.alert').hide()">&times;</a>
+        <strong>Query Failed!</strong><span id="error_message_span"></span>
+    </div>
+    <!-- /.row -->
+    <!-- end PAGE TITLE AREA -->
+
+
+    <div style="background-color: #22550d; width: 100%; height: 13px;" ></div>
+    <div id="chart-file-controls" style="text-align: center; position: relative;" class="row">
+        <div class="col-sm-3" style="padding: 0;">
+            <div id="new-query" class="chart-file-control" title="Create new chart" style="margin-right: 10px"><i class="fa fa-plus-circle"></i> {% trans 'New' %}</div>
+            <div id="chart-open" class="chart-file-control" title="Load existing query"><i class="far fa-folder-open"></i> {% trans 'Open' %}</div>
+            <div id="front-chart-save" type="button" data-target="#saveModal" data-toggle="modal" class="chart-file-control"  style="margin-right: 10px;"><i class="fa fa-save"></i> {% trans 'Save' %}</div>
+            <div id="front-chart-save-as" type="button" data-target="#saveAsModal" data-toggle="modal" class="chart-file-control" ><i class="far fa-save" ></i> {% trans 'Save As' %}</div>
+
+            {#        <button id="run-query-btn" class="btn btn-sm btn-primary after-data-selection"> Run </button>#}
+        </div>
+        <div class="col-sm-6">
+            <div class="add-value-field btn btn-success btn-md " data-toggle="modal" data-target="#select-data-modal"  style="margin: 0; padding: 9px 27px; ">
+                <i class="fa fa-plus"></i> Select data
+            </div>
+        </div>
+{#        <div id="chart-status-msg" class="pull-right"></div>#}
+        <div id="chart-name" class="col-sm-3">
+            <span class="hidden">{% trans 'Query name' %}: <input type="text" name="chart-name" val=""/> </span>
+            <div id="run-query-btn" class="btn btn-md btn-default pull-right bg-color--blue after-data-selection" style="background: #a00000 !important; float: right; padding: 9px 27px; margin: 2px;">
+                <i class="fa fa-play-circle"></i> Run
+            </div>
+            <div id="cancel-query-btn" class="btn btn-md btn-default pull-right bg-color--blue" style="display:none; float: right; padding: 9px 27px; margin: 2px;">
+                <i class="fa fa-play-circle"></i> Cancel Execution
+            </div>
+        </div>
+        <input type="number" class="hidden" id="offset_input" value="0" />
+    </div>
+
+    <div class="row" id="chart-container" >
+        {% csrf_token %}
+        <div class="col-lg-12 col-sm-12" style="padding-left:0">
+            <div>
+                <div class="row">
+                    <div class="col-md-3" id="chart-sidebar">
+                        <div class="row btn-container" style="margin-left:0; padding: 0;">
+{#                            <div class="add-value-field btn btn-default btn-sm pull-left bg-color--blue" data-toggle="modal" data-target="#select-data-modal"  style="float: left; ">#}
+{#                                <i class="fa fa-plus"></i> Select data#}
+{#                            </div>#}
+{#                            <div id="run-query-btn" class="btn btn-sm btn-default pull-right bg-color--blue after-data-selection" style="background: #a00000 !important; float: right; width: 32%">#}
+{#                                <i class="fa fa-play-circle"></i> Run#}
+{#                            </div>#}
+                        </div>
+                        <div id="chart-control-list">
+                            <ul class="nav nav-pills">
+                                <li style="float: left; width: 32%" class="active"><a data-toggle="pill" href="#variables_div">Variables</a></li>
+                                <li style="width: 34%; margin-left: 4px;"><a data-toggle="pill" href="#filters_div">Filters</a></li>
+                                <li style="float: right; width: 32%" ><a data-toggle="pill" href="#operations_div">Operations</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div id="variables_div" class="tab-pane fade">
+                                    <p class="before-data-selection" style="margin-top: 15px;"> Select data first </p>
+                                    <div id="joined_dimensions_div" class="after-data-selection hidden" style="margin: 5px 0 0 0; border: solid #a2a2a2 1px; text-align: center;"></div>
+                                    <div id="join_warning_div" class="after-data-selection hidden" style="margin: 5px 0 0 0; border: solid #a2a2a2 1px; text-align: center; background-color: #9f0000; color: white;">
+                                        No more than two different datasets can be combined at a single query. Please update your selection.
+                                    </div>
+                                    <div class="chart-control"></div>
+                                </div>
+                                <div id="operations_div" class="tab-pane fade">
+                                    <p class="before-data-selection" style="margin-top: 15px;"> Select data first </p>
+                                    <div class="row after-data-selection query-controls-container"  style="padding: 0; margin-left: 0; margin-top: 20px;">
+                                        <div class="fieldset">
+                                            <div class="col-xs-4 col-prefix" style="padding: 0">
+                                                Group
+                                            </div>
+                                            <div class="col-xs-8 col-main">
+                                                <select id="id_category" name="category"  multiple="multiple"></select>
+                                            </div>
+{#                                            <div class="col-xs-1 col-suffix">#}
+{#                                            </div>#}
+                                        </div>
+                                    </div>
+                                    <div class="row after-data-selection query-controls-container"  style="padding: 0; margin-left: 0; margin-top: 20px;">
+                                        <div class="fieldset">
+                                            <div class="col-xs-4 col-prefix" style="padding: 0">
+                                                Sort
+                                            </div>
+                                            <div class="col-xs-8 col-main">
+                                                <select id="id_order" name="orderby"  multiple="multiple"></select>
+                                            </div>
+{#                                            <div class="col-xs-1 col-suffix">#}
+{#                                            </div>#}
+                                        </div>
+                                    </div>
+                                    <div id="resolution" class="clearfix after-data-selection">
+                                        {% include "query_designer/utils/resolution_editor.html" %}
+                                    </div>
+                                </div>
+                                <div id="filters_div" class="tab-pane fade in active">
+                                    <p class="before-data-selection" style="margin-top: 15px;"> Select data first </p>
+                                    <div class="clearfix after-data-selection">
+                                        <div class="btn-edit-filters pull-left btn btn-sm btn-primary filter-edit-open" style="padding: 7px 20px; font-size: 11px; margin: 5px;">
+                                            <i class="fa fa-filter" style="font-size: 14px;"></i> {% trans 'Data filters' %} (<span class="filter-counter">0</span>)
+                                        </div>
+                                    </div>
+
+
+                                    <div id="bounds" class="text-center " style="margin-top: 0px;">
+                                        {% include "query_designer/utils/bounds-modals.html" %}
+                                    </div>
+
+                                    <div id="chart-filters" class="hidden">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="chart-top-menu">
+                            <ul id="chart-content-tabs" class="nav nav-pills" data-tabs="tabs">
+                                <li class="active"><a href="#dataDiv" data-toggle="tab">{% trans 'Data' %}</a></li>
+                                <!-- <li><a href="#chart" data-toggle="tab">{% trans 'Chart' %}</a></li> -->
+                                <li id="query-id-li" style="float: right"><a href="#" style="display: inline-block;">{% trans 'ID:' %}<span id="query--id"></span></a></li>
+                                <li id="query-name-li" style="float: right"><a href="#" style="display: inline-block;">{% trans 'Query name:' %}<span id="query--title"></span></a><span id="chart-picker" style="height: 5px;"></span></li>
+                            </ul>
+
+                        </div>
+                        <div id="chart-tab-content" class="tab-content">
+                            <div class="tab-pane toggle-chart" id="chart">
+                                <div class="no-data-message">{% trans 'No data available' %}</div>
+
+                                <div id="chartdiv" class="chartdiv" style="display: none;">
+                                    {% include "query_designer/utils/chart_editor.html" %}
+                                </div>
+                            </div>
+                            <div class="tab-pane active" id="dataDiv">
+                                <div id="datatable" style="position: relative;">
+                                    <div class="no-data-message">{% trans 'No data available' %}</div>
+                                    <div class="outputLoadImg" style="display: none">
+                                        <h4 id="loading_message" style="text-align: center; white-space: pre-line;"></h4>
+                                        <img src="/static/img/loading_gif.gif"/>
+                                    </div>
+                                    <table id="graph-data-table" class="table">
+                                        <thead></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div id="paginationDiv" page="0" style="display: none;">
+                                    <button id="dataPrevBtn" class="btn btn-primary btn-sm">Previous</button>
+                                    <button id="dataNextBtn" class="btn btn-primary btn-sm">Next</button>
+                                    <p style="margin-left: 0;">Showing top 500 records.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end of row -->
+
+    {% with modal_id="chart-modal" %}
+        {% include "query_designer/utils/common-modal.html" %}
+    {% endwith  %}
+
+    {% include "query_designer/utils/filters-modal.html" %}
+
+    {% include "query_designer/utils/select-data-modal.html" %}
+
+    {% with modal_id="formulas-modal" %}
+        {% include "query_designer/utils/common-modal.html" %}
+    {% endwith  %}
+{% endblock %}
+
+{% block modal %}
+    <div id="myModal" class="modal fade row" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-body">
+
+                    {# LOAD ALL THE FORMS FOR EVERY VISUALIZATION AND KEEP IT HIDDEN #}
+                    {# {% include "dashboard_builder/config-visualization-form-fields-auto-load.html" %} #}
+                    <div id="query-variables-select-container" hidden></div>
+                    <div id="query-dimensions-select-container" hidden ></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="saveModal"  tabindex="-1"  role="dialog" aria-labelledby="saveModalLabel" aria-hidden="true" style="width: 60%;top:20vh; left:45vh;">
+        <div class="modal-dialog " role="document" style="width: 50%;">
+            <div class="modal-content" style="height: inherit;">
+                <div class="modal-header">
+                    <h4 style="font-weight: bold" class="modal-title" id="saveModalLabel">Save</h4>
+                </div>
+                <div class="modal-body" style="height: inherit;margin-bottom: 20px; ">
+                    <div id="save-modal-text">Fill in the name and click on 'Save' to store the current Query.</div>
+                    <input class="form-control" id="query-save-name" type="text" placeholder="Query Name" style="width: 100%; padding: 3px; height: 100%;margin-top: 20px">
+
+                </div>
+                <div class="modal-footer">
+                    <div id="chart-save" class="chart-file-control btn btn-primary" data-dismiss="modal" style="  margin-top: 0;" class="btn btn-md"><i class="fa fa-save"></i> {% trans 'Save' %}</div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"  style="float: right;">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal fade" id="saveAsModal" tabindex="-1" role="dialog" aria-labelledby="saveAsModalLabel" aria-hidden="true" style="width: 60%;top:20vh; left:45vh;">
+        <div class="modal-dialog " role="document" style="width: 50%;">
+            <div class="modal-content" style="height: inherit; ">
+                <div class="modal-header">
+                    <h4 style="font-weight: bold" class="modal-title" id="saveAsModalLabel">Save As</h4>
+                </div>
+                <div class="modal-body" style="height: inherit;margin-bottom: 20px; ">
+                    <div id="save-as-modal-text">Fill in the name and click on 'Save' to store the current Query with a different title.</div>
+                    <input class="form-control" id="query-save-as-name" type="text" placeholder="Query Name" style="width: 100%; padding: 3px; height: 100%;margin-top: 20px">
+
+                </div>
+                <div class="modal-footer">
+                    <div id="chart-save-as" class="chart-file-control btn btn-primary" data-dismiss="modal" style="margin-top: 0;" class="btn btn-md"><i class="fa fa-save"></i> {% trans 'Save' %}</div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"  style="float: right;">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+
+{% leaflet_js %}
+
+{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>#}
+{#    <script src="{% static 'query_designer/js/handsontable/handsontable.full.min.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>#}
+
+{#    <link href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" rel="stylesheet">#}
+{#    <script src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>#}
+
+    <script src="{% static "query_designer/js/simplified/toolbox2.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+
+    <script src="{% static "query_designer/js/simplified/data-modal.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+
+    <script src="{% static "query_designer/js/simplified/interactions.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+
+{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>#}
+
+    <script src="{% static "js/bootstrap-datetimepicker.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+
+{#    <script src="{% static "js/leaflet-areaselect.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>#}
+    <script src="{% static "query_designer/js/simplified/area-select/simple-shape.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "query_designer/js/simplified/area-select/rectangle.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "query_designer/js/simplified/spatio_temporal_filters.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "query_designer/js/simplified/chart_editor.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "vendor/Semantic-UI-CSS-master/semantic.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+
+    <script src="{% static "vendor/bootstrap-tour/src/bootstrap-tour.min.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+
+{#    <script src="//cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script>#}
+    <script src="{% static "/js/jplist.core.min.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "/js/jplist.textbox-filter.min.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "/js/jplist.filter-toggle-bundle.min.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "/js/jplist.filter-dropdown-bundle.min.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "/js/jplist.ext-animation.min.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "/js/jplist.pagination-bundle.min.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "/js/jplist.history-bundle.min.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "/js/jplist.bootstrap-sort-dropdown.min.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static "/js/jplist.jquery-ui-bundle.min.js" %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+
+    <script>var viz_conf_json = JSON.parse('{{ visualisation_configuration|escapejs }}');</script>
+    <script>
+        $(function() {
+            window.QueryToolbox.addChart();
+        });
+        var time_start_timestamp = {{time_start_timestamp}}
+        var time_end_timestamp = {{ time_end_timestamp }}
+
+        $(function() {
+            $(".add-value-field").click();
+        });
+
+
+
+    </script>
+
+    <script>
+        setTimeout(function(){
+           console.log("starting JPLIST");
+           $("#initialising_div").removeClass("hidden");
+           //check all jPList javascript options here
+           $('#dataset-all-section').jplist({
+              itemsBox: '.selection-body',
+              itemPath: '.dataset-section',
+              panelPath: '.filter-section',
+              noResults: '.jplist-no-results'
+           });
+           console.log("ended JPLIST");
+           $("#initialising_div").addClass("hidden");
+
+           $('[data-toggle="tooltip"]').tooltip();
+        }, 1000);
+        $('document').ready(function(){
+        });
+    </script>
+
+    <script type="text/javascript">
+        $('#createPreBuildLink').click(function (e) {
+            if($("input[name='chart-name']").val() === ""){
+                alert('Please save your query first!')
+            }
+            else {
+                if ($('#viz_container > iframe').length) {
+                    QueryToolbox.save(function (id) {}, 0);
+                    setTimeout(function () {
+                        var tempLink = $('#viz_container > iframe');
+                        var helperVar = (tempLink[0].contentDocument || tempLink[0].contentWindow);
+                        tempLink = helperVar.URL;
+                        var encodedUrl = encodeURIComponent(tempLink);
+                        window.location = "/dashboards/create?toCreate=" + encodedUrl;
+                    }, 1000);
+                }
+            }
+        });
+
+        $('#createPreBuildLinkExisting').click(function (e) {
+            if($("input[name='chart-name']").val() === ""){
+                alert('Please save your query first!')
+            }
+            else {
+                if ($('#viz_container > iframe').length) {
+                    QueryToolbox.save(function (id) {}, 0);
+                    setTimeout(function () {
+                        var tempLink = $('#viz_container > iframe');
+                        var helperVar = (tempLink[0].contentDocument || tempLink[0].contentWindow);
+                        tempLink = helperVar.URL;
+                        var encodedUrl = encodeURIComponent(tempLink);
+                        window.location = "/dashboards/create?toCreate=" + encodedUrl;
+                    }, 1000);
+                }
+            }
+        });
+    </script>
+{% endblock %}

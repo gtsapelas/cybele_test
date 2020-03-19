@@ -1,0 +1,27 @@
+# django
+django
+djangorestframework
+requests
+
+# authentication
+django-allauth
+
+# database access
+psycopg2
+presto-python-client
+jaydebeapi
+JPype1==0.6.3
+
+# data aggregation
+# numpy
+pytz
+
+#data visualization
+django
+django-leaflet
+
+#settings
+django-settings-export
+
+#static
+whitenoise

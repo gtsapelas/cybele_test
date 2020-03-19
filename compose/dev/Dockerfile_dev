@@ -1,0 +1,61 @@
+# pull official base image
+FROM python:3.7-alpine
+
+# set work directory
+WORKDIR /usr/src/cybele_advanced_query_builder
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+
+# update pip
+RUN python3 -m pip install --upgrade pip
+
+# install c++ for Jype1
+RUN apk add --update g++
+
+# install dependencies
+COPY ./requirements/requirements_base.txt /usr/src/cybele_advanced_query_builder/requirements_base.txt
+RUN \
+ apk add --no-cache postgresql-libs && \
+ apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
+ python3 -m pip install -r requirements_base.txt  && \
+ apk --purge del .build-deps
+
+COPY ./requirements/requirements_dev.txt /usr/src/cybele_advanced_query_builder/requirements_extra.txt
+RUN \
+ apk add --no-cache postgresql-libs && \
+ apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
+ python3 -m pip install -r requirements_extra.txt  && \
+ apk --purge del .build-deps
+
+
+# create a "django" user
+RUN addgroup -S django \
+    && adduser -S -G django django
+
+
+# copy the starting commands for django
+COPY ./compose/dev/start-dev.sh /start.sh
+RUN sed -i 's/\r$//g' /start.sh
+RUN chmod +x /start.sh
+RUN chown django /start.sh
+
+
+### Get Java via the package manager
+RUN apk update \
+&& apk upgrade \
+&& apk add --no-cache bash \
+&& apk add --no-cache --virtual=build-dependencies unzip \
+&& apk add --no-cache curl \
+&& apk add --no-cache openjdk8-jre
+
+
+# Setup JAVA_HOME
+ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
+# Setup LD_LIBRARY_PATH for Jype1
+ENV LD_LIBRARY_PATH $JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server
+
+# copy project
+COPY . /usr/src/cybele_advanced_query_builder/

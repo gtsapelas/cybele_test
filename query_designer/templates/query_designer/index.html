@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block css %}
+    <link href="{% static 'query_designer/css/main.css' %}?platform_version={{ settings.PLATFORM_VERSION }}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+    <div id="query-designer-container">
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    <!-- amChart -->
+    <script src="https://www.amcharts.com/lib/3/ammap.js"></script>
+    <script src="https://www.amcharts.com/lib/3/maps/js/worldHigh.js"></script>
+    <script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+    <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+
+    <script src="{% static 'query_designer/js/components/ace/src/ace.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/ace/src/mode-json.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/ace/src/ext-language_tools.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+
+    <script src="{% static 'query_designer/js/components/editor.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/designer-menu.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/toolbar.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/query-options.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/property-options.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/dataset-select.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/property-select.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/arrows.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/filters.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/document-builder.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/chartTypes/unknown.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/chartTypes/map.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/chart-builder.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/query-executor.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/storage.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/components/workbench.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+
+    <script src="{% static 'query_designer/js/languages/bdo-mongo.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+    <script src="{% static 'query_designer/js/qd.js' %}?platform_version={{ settings.PLATFORM_VERSION }}"></script>
+
+    <script>
+        $(function() {
+            $('#query-designer-container').qd({
+                pk: Number(window.location.pathname.split('/')[window.location.pathname.split('/').length - 2]) || undefined,
+                properties: {
+                    pack: function(properties) {
+                        var resultProperties = [],
+                            latitude = null, longitude = null;
+
+                        // transform latitude, longitude to location
+                        $.each(properties, function(idx, property) {
+                            if (['degrees_north', 'degree_north'].indexOf(property.unit) >= 0) {
+                                latitude = property;
+                            }
+                            else if (['degrees_east', 'degree_east'].indexOf(property.unit) >= 0) {
+                                longitude = property
+                            } else {
+                                resultProperties.push(property);
+                            }
+                        });
+
+                        if ((latitude !== null) && (longitude !== null)
+                                && (latitude.dataset_id == longitude.dataset_id)) {
+                            resultProperties.push({
+                                dataset_id: latitude.dataset_id,
+                                minLat: latitude.min,
+                                maxLat: latitude.max,
+                                minLong: longitude.min,
+                                maxLong: longitude.max,
+                                name: "location",
+                                title: "Location",
+                                stepLat: latitude.step,
+                                stepLong: longitude.step,
+                                unit: "degrees",
+                                _id: 'LOCATION(' + latitude._id + ',' + longitude._id + ')'
+                            });
+                        } else {
+                            if (latitude !== null) {
+                               resultProperties.push(latitude);
+                            }
+                            if (longitude !== null) {
+                               resultProperties.push(longitude);
+                            }
+                        }
+
+                        return resultProperties
+                    },
+
+                    unpack: function(qdDocument) {
+                        $.each(qdDocument.from, function(idx, _from) {
+                            var resultSelect = [];
+
+                            $.each(_from.select, function(idx, property) {
+                                if (property.type.indexOf('LOCATION(') === 0) {
+                                    var latProperty = $.extend(true, {}, property),
+                                        longProperty = $.extend(true, {}, property);
+
+                                    // update property names
+                                    latProperty.name += '_latitude';
+                                    longProperty.name += '_longitude';
+
+                                    // update titles
+                                    latProperty.title += ' (latitude)';
+                                    longProperty.title += ' (longitude)';
+
+                                    // update IDs and types
+                                    latProperty.type = property.type.split('(')[1].split(',')[0];
+                                    longProperty.type = property.type.split('(')[1].split(',')[1].replace(')', '');
+
+                                    resultSelect.push(latProperty);
+                                    resultSelect.push(longProperty);
+                                } else {
+                                    resultSelect.push(property)
+                                }
+                            });
+
+                            _from.select = resultSelect;
+                        });
+                    }
+                },
+
+                endpoint: {
+                    type: 'POST',
+                    url: '/queries/execute/',
+                    queryParameter: 'query',
+
+                    defaultParameters: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    }
+                },
+
+                language: {
+                    parser: BDOMongo,
+                    mode: 'json'
+                },
+
+                scrollParent: $('.main-panel')
+            });
+        });
+    </script>
+{% endblock %}

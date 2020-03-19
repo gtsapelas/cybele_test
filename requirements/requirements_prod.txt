@@ -1,0 +1,4 @@
+# deployment
+dj-config-url
+newrelic
+gunicorn

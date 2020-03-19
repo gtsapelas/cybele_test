@@ -1,0 +1,120 @@
+<div class="coverage-map-filters ">
+    <div class="row" style="text-align: left;">
+        <h4 class="" style="margin: 0; display: inline-block;">Select Spatial Coverage</h4>
+        <button id="resetMapBounds" class="btn btn-change" style="position:relative;bottom:2px; padding: 2px 7px 2px 7px; text-transform: capitalize;">Reset</button>
+    </div>
+    <div id="mapselection" class="selection">
+        <div class="" style="padding-left: 0; padding-right: 0;">
+            <div id="mappreview" data-toggle="modal" data-target="#mapModal" style="cursor: pointer; height: 130px; margin-top: 0px; margin-bottom: 5px; border: solid 2px grey; border-radius: 1em;">
+            </div>
+        </div>
+        <div class="">
+            <div id="choices">
+                <select style="border: 2px solid grey; border-radius: 1em;" id="mapchoices">
+                    <option></option>
+                    <option value="0">Mediterranean</option>
+                    <option value="1">Aegean Sea</option>
+                    <option value="2">Ionian Sea</option>
+                    <option value="3">Baltic Sea</option>
+                    <option value="4">Black Sea</option>
+                    <option value="5">North Sea</option>
+                    <option value="6">Norwegian Sea</option>
+                    <option value="7">Tyrrhenian Sea</option>
+                    <option value="8">Irish Sea</option>
+                    <option value="9">English Channel</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row" style="margin: 5px;">
+            <div class="col-sm-12" style="margin: 0px;">
+                <div class='col-sm-4' style="padding: 0px; font-size: 10pt;">
+                    <p>Latitude, from:</p>
+                </div>
+                <div class='col-sm-3' style="padding: 0px;">
+                    <input class="form-control" id="lat_min" type='number' step="0.01" min="-90" max="90" style="width: 100%; margin: 0; padding: 3px; height: 100%;" />
+                </div>
+                <div class='col-sm-1' style="padding: 0px; font-size: 10pt;">
+                    <p>to:</p>
+                </div>
+                <div class='col-sm-3' style="padding: 0px;">
+                    <input class="form-control" id="lat_max" type='number'  step="0.01" min="-90" max="90" style="width: 100%; margin: 0; padding: 3px; height: 100%;" />
+                </div>
+            </div>
+            <div class="col-sm-12" style="margin: 0px;">
+                <div class='col-sm-4' style="padding: 0px; font-size: 10pt;">
+                    <p>Longitude, from:</p>
+                </div>
+                <div class='col-sm-3' style="padding: 0px;">
+                    <input class="form-control" id="lon_min" type='number'  step="0.01" min="-180" max="180" style="width: 100%; margin: 0; padding: 3px; height: 100%;" />
+                </div>
+                <div class='col-sm-1' style="padding: 0px; font-size: 10pt;">
+                    <p>to:</p>
+                </div>
+                <div class='col-sm-3' style="padding: 0px;">
+                    <input class="form-control" id="lon_max" type='number' step="0.01" min="-180" max="180" style="width: 100%; margin: 0; padding: 3px; height: 100%;" />
+                </div>
+            </div>
+            <input hidden type="number" id="areaSelectWidth" value="" >
+            <input hidden type="number" id="areaSelectHeight" value="">
+
+            <p id="mapbounds" style="display: none; margin: 5px; line-height: 1; text-align: left;"></p>
+            </div>
+    </div>
+</div>
+
+<div class="coverage-date-filters" style="margin-top: 2%;">
+{#    <div style="text-align: left;"><h4 style="margin: 0;">Filter by temporal coverage</h4></div>#}
+    <div class="row" style="text-align: left;">
+        <h4 class="" style="margin:0; display: inline-block;">Select Temporal Coverage</h4>
+        <button id="resetDates" class="btn btn-change" style="position:relative;bottom:2px; padding: 2px 7px 2px 7px; text-transform: capitalize;">Reset</button>
+    </div>
+    <div class="row" style="margin-top:15px">
+        <div class="coverage-date-filters-icon">
+        </div>
+        <div class='col-sm-6'>
+            <div class="form-group">
+                <div class='input-group date' id='startdatepicker'>
+                    <label>Start Date:</label>
+                    <input type='text' class="form-control" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class='col-sm-6'>
+            <div class="form-group">
+                <div class='input-group date' id='enddatepicker'>
+                    <label>End Date:</label>
+                    <input type='text' class="form-control" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade " id="mapModal" tabindex="-1" role="dialog" data-backdrop="false" style="height: 98vh;">
+      <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                  <div class="modal-header" style="height: 4vh; padding: 2px;">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="mapModalLabel">Choose Map Region</h4>
+                  </div>
+                  <div class="modal-body" style="height: 75vh; overflow-y: visible; padding: 0;">
+                        <div id="map" style="width: 80%; height: 100%; position:relative; margin: 0px 10%;">
+
+                        </div>
+                  </div>
+                  <div class="modal-footer" style="height: 5vh; margin: 5px 0; padding: 0 2%;">
+                        <button type="button" class="btn btn-default btn-sm" id="closemodal" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="saveregion" data-dismiss="modal" style="width: 70px;">Ok</button>
+                  </div>
+            </div>
+      </div>
+</div>

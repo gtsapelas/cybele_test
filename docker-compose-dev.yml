@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  web:
+    build: 
+      context: .
+      dockerfile: ./compose/dev/Dockerfile_dev
+    command: /start.sh
+    volumes:
+      - .:/usr/src/cybele_advanced_query_builder/
+    ports:
+      - 8000:8000
+    env_file:
+      - .env/dev/.env_app_dev
+    depends_on:
+      - db
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - query_designer_prod_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+    env_file:
+      - .env/dev/.env_db_dev
+
+volumes:
+  query_designer_prod_data: {}
+

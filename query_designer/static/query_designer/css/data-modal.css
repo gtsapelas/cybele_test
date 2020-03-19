@@ -1,0 +1,326 @@
+#dataset-coverage-div img{
+    max-width: 80%;
+    max-height: 50%;
+}
+
+#dataset-coverage-div th, #dataset-coverage-div td{
+    padding: 5px 1px;
+}
+
+#dataset-coverage-div{
+    text-align: center;
+}
+
+.modal-backdrop{
+    z-index: 0 !important;
+}
+
+#select-data-modal .modal-dialog{
+    margin: 2vh 2vw !important;
+    padding: 0;
+    width: 95vw !important;
+    max-width: 96vw;
+    height: 95vh;
+    max-height: 95vh;
+    overflow: auto;
+}
+
+#select-data-modal .modal-content {
+    height: 100%;
+    padding: 0% 1%;
+}
+
+#select-data-modal .modal-body{
+    padding: 2px 0%;
+    margin: 0;
+    height: 86%;
+}
+
+/*#select-data-modal .modal-body .col-sm-2, #select-data-modal .modal-body .col-sm-6 #select-data-modal .modal-body .col-sm-4 {*/
+    /*padding: 0;*/
+/*}*/
+
+#select-data-modal .modal-header{
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    height: 7%;
+    border-bottom: ridge #ffffff96;
+}
+
+#select-data-modal .modal-header .modal-title {
+    font-size: 4vh;
+}
+
+#select-data-modal .modal-header button.close {
+    font-size: 15pt;
+    margin-top: 0.5%;
+}
+
+#select-data-modal .modal-footer{
+    padding: 0;
+    margin: 0;
+    height: 7%;
+}
+
+#select-data-modal .modal-body h3{
+    text-align: center;
+    font-size: 3vh;
+    margin: 0 0 3% 0;
+    padding:0;
+}
+
+/*#select-data-modal .modal-body #dataset-filter-section select{*/
+    /*width: 100%;*/
+/*}*/
+
+#select-data-modal .modal-body #dataset-list-section {
+    border-right: ridge #ffffffb5;
+    height: 100%;
+    overflow-y: auto;
+}
+
+#select-data-modal .modal-body #dataset-filter-section {
+    height: 100%;
+    background-color: #22550d;
+    box-shadow: 2px 2px 14px 2px #b9b9b9;
+}
+
+#select-data-modal .modal-body #dataset-filter-section h3{
+    color: white;
+}
+
+#select-data-modal .modal-body #dataset-filter-section label{
+    color: white;
+}
+
+#select-data-modal .modal-body #dataset-filter-section input{
+    color: white;
+}
+
+#select-data-modal .form-group.is-focused .form-control {
+    outline: none;
+    background-image: linear-gradient(#fffcfe, #fef7ff), linear-gradient(rgba(210, 210, 210, 0.61), rgba(210, 210, 210, 0.6));
+    background-size: 100% 2px, 100% 1px;
+    box-shadow: none;
+    transition-duration: 0.3s;
+}
+
+#select-data-modal .form-group {
+    margin: 0;
+}
+
+#select-data-modal .form-group label {
+    font-size: 14px;
+    margin-top: 5%;
+}
+
+#select-data-modal .checkbox {
+    margin-top: 3%;
+    margin-bottom: 3%;
+}
+
+#select-data-modal .jplist-range-slider{
+    margin-top: 0;
+}
+
+#select-data-modal .checkbox label {
+    font-size: 14px;
+}
+
+#select-data-modal .checkbox .checkbox-material {
+    padding-left: 0;
+}
+
+#select-data-modal .checkbox input[type=checkbox]:not(:checked) + .checkbox-material .check {
+    background: white;
+}
+
+.dataset-section:hover{
+    cursor: pointer;
+    background-color: #ececec;
+}
+
+#select-data-modal #dataset-list-section .dataset-section[data-selected="True"]{
+    background-color: #606a77;
+    color: white;
+    font-weight: normal;
+}
+
+#select-data-modal .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+    background-color: #606a77;
+}
+
+#select-data-modal #dataset-list-section .dataset-section[data-selected="True"] .dataset-publisher a{
+    color: white;
+    text-decoration: underline;
+}
+
+#select-data-modal #dataset-list-section .dataset-section[data-selected="True"] .dataset-title{
+    color: white;
+}
+
+#select-data-modal .modal-body #dataset-info-section {
+    height: 100%;
+    /*background-color: #ececec;*/
+}
+
+#select-data-modal .modal-body .row{
+    height: 100%;
+}
+
+#select-data-modal table{
+    table-layout: fixed;
+    width: 100%;
+}
+
+.variable-title{
+    word-wrap:break-word;
+}
+
+#select-data-modal #dataset-list-section .dataset-title{
+    font-size: 120%;
+    color: #3e4b5b;
+    font-weight: bold;
+}
+
+#select-data-modal #dataset-list-section .dataset-publisher{
+    font-size: 80%;
+}
+
+#select-data-modal #dataset-info-section #dataset-variables-div tr:hover{
+    cursor: pointer;
+    background-color: #ececec;
+}
+
+.checkbox .checkbox-material:before {
+     left: 0;
+     top: 0;
+}
+
+#data-filter-search {
+    width: 100%;
+}
+
+.dataset-metadata {
+    font-weight: 300;
+}
+
+.dataset-metadata-btn {
+    color: #c5c5c5;
+    cursor: pointer;
+}
+
+#select-data-modal #dataset-list-section .dataset-name {
+    box-shadow: 0 1px 0px #d5d5d5;
+    padding: 10px 10px;
+    cursor: pointer;
+}
+
+#select-data-modal #dataset-list-section .dataset-section {
+    margin-bottom: 1px;
+}
+
+#select-data-modal #dataset_info_div .dimension-section,
+#select-data-modal #dataset_info_div .variable-section{
+    border: none;
+}
+
+#select-data-modal #dataset_info_div .variable-section{
+    cursor: pointer;
+}
+
+#select-data-modal #dataset_info_div .variable-section:hover {
+    background-color: #ececec;
+}
+
+#select-data-modal #dataset_info_div .variable-section[data-selected="False"]:hover  i.fa-check{
+    display: inline-block;
+}
+
+i.fa-info{
+    margin-left: 5px;
+    display: none;
+    font-size: small;
+}
+
+#select-data-modal #dataset_info_div .variable-section:hover  i.fa-info{
+    display: inline-block;
+}
+
+#select-data-modal #dataset_info_div .variable-section[data-selected="True"]{
+    background-color: #22550d;
+    color: white;
+}
+
+#select-data-modal #dataset_info_div .variable-section[data-disabled="True"]{
+    background-color: #9fbabd;
+}
+
+#select-data-modal #dataset_info_div .variable-section[data-selected="False"] i.fa-check{
+    display: none;
+}
+
+#select-data-modal #dataset_info_div .variable-section[data-selected="True"] i.fa-check{
+    display: inline-block;
+}
+
+#dataset_info_div #dataset_basic_info_div .dataset-title{
+    text-align: center;
+    font-size: 150%;
+    font-weight: bold;
+    margin-bottom: 2%;
+}
+
+#dataset_info_div #dataset_basic_info_div .last_updated_in_title{
+    display: none;
+}
+
+#dataset_info_div #dataset_basic_info_div .dataset-publisher{
+    display: block !important;
+}
+
+#dataset_info_div #dataset_basic_info_div .dataset-publisher{
+    text-align: center;
+    font-size: 100%;
+    margin-bottom: 2%;
+}
+
+#dataset_info_div #pills_div{
+    margin: 3%;
+}
+
+#select-data-modal #dataset_info_div #dataset_var_dim_div .panel-heading:hover{
+    cursor: pointer;
+}
+
+.selection-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+}
+
+.selection-confirm {
+    height: 64px;
+}
+
+.selection-confirm > div {
+    border-top: 1px solid #cccc;
+    margin-top: 20px;
+    padding-top: 10px;
+}
+
+.selection-confirm label {
+    width: 70px;
+}
+
+
+
+#dataset_info_div {
+    height: 92%;
+    overflow-y: auto;
+}
+
+.dataset-metadata .table thead th{
+    font-weight: bold !important;
+}
